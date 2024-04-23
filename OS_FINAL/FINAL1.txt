@@ -1,0 +1,801 @@
+SCHDELING.CPP
+
+
+Enter the number of processes : 6
+Enter the arrival time for processes : 0 1 1 1 2 3
+Enter the burst time for processes : 9 3 2 4 3 2
+
+Output:
+
+
+Process id      Arrival Time    Burst Time      Completion Time Tunraround Time  Waiting Time
+1               0               9               9               90
+2               1               3               12              11               8
+3               1               2               14              13               11
+4               1               4               18              17               13
+5               2               3               21              19               16
+6               3               2               23              20               18
+Total Completion time for process is : 97 milliseconds
+Average Waiting time for process is : 11
+Average Turnaround time for process is : 14.8333
+
+
+FCFS CODE:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main()
+{
+    int n;
+    cout << "Enter the number of processes : ";
+    cin >> n;
+    int process[n];
+    int arrival[n];
+    int burst[n];
+    cout << "Enter the arrival time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int x;
+        cin >> x;
+        process[i] = i + 1;
+        arrival[i] = x;
+    }
+    cout << "Enter the burst time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int y;
+        cin >> y;
+        burst[i] = y;
+    }
+
+    // sort the process
+    for (int i = 0; i < n; i++)
+    {
+        int pos = i;
+        for (int j = i + 1; j < n; j++)
+        {
+            if (arrival[j] < arrival[pos])
+                pos = j;
+        }
+
+        int temp;
+        temp = arrival[i];
+        arrival[i] = arrival[pos];
+        arrival[pos] = temp;
+
+        int temp1;
+        temp1 = burst[i];
+        burst[i] = burst[pos];
+        burst[pos] = temp1;
+
+        int temp2;
+        temp2 = process[i];
+        process[i] = process[pos];
+        process[pos] = temp2;
+    }
+
+    int wt[n];
+    int tt[n];
+    vector<int> ct(n, 0);
+    ct[-1] = 0;
+    for (int i = 0; i < n; i++)
+    {
+        ct[i] = ct[i - 1] + burst[i];
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        // Turnaround time = waiting time + burst time or TAT = CT - AT
+        tt[i] = ct[i] - arrival[i];
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        // waiting time = burst of prev + waiting time of prev  or TAT - BT
+        wt[i] = tt[i] - burst[i];
+    }
+
+    float totalct = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totalct += ct[i];
+    }
+    float totaltt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totaltt += tt[i];
+    }
+    float totalwt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totalwt += wt[i];
+    }
+
+    cout << "Process id"
+         << "\t"
+         << "Arrival Time"
+         << "\t"
+         << "Burst Time"
+         << "\t"
+         << "Completion Time"
+         << "\t"
+         << "Tunraround Time"
+         << "\t"
+         << "Waiting Time" << endl;
+    for (int i = 0; i < n; i++)
+    {
+        cout << process[i] << "\t\t" << arrival[i] << "\t\t" << burst[i] << "\t\t" << ct[i] << "\t\t" << tt[i] << "\t\t" << wt[i] << endl;
+    }
+    cout << "Total Completion time for process is : ";
+    cout << totalct;
+    cout << " milliseconds\n";
+    cout << "Average Waiting time for process is : ";
+    float avgwt = totalwt / n;
+    cout << avgwt;
+    cout << "\n";
+    cout << "Average Turnaround time for process is : ";
+    float avgtt = totaltt / n;
+    cout << avgtt;
+    cout << "\n";
+    return 0;
+}
+
+
+
+SJF CODE:
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int n;
+    cout << "Enter the number of processes : ";
+    cin >> n;
+    int process[n];
+    int arrival[n];
+    int burst[n];
+    cout << "Enter the arrival time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int x;
+        cin >> x;
+        process[i] = i + 1;
+        arrival[i] = x;
+    }
+    cout << "Enter the burst time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int y;
+        cin >> y;
+        burst[i] = y;
+    }
+
+    // sort
+    for (int i = 0; i < n; i++)
+    {
+        int pos = i;
+        for (int j = i + 1; j < n; j++)
+        {
+            if (burst[j] < burst[pos])
+                pos = j;
+        }
+
+        int temp;
+        temp = burst[i];
+        burst[i] = burst[pos];
+        burst[pos] = temp;
+
+        int temp2;
+        temp2 = arrival[i];
+        arrival[i] = arrival[pos];
+        arrival[pos] = temp2;
+
+        int temp1;
+        temp1 = process[i];
+        process[i] = process[pos];
+        process[pos] = temp1;
+    }
+
+    int wt[n];
+    int tt[n];
+    wt[0] = 0;
+    for (int i = 1; i < n; i++)
+    {
+        wt[i] = burst[i - 1] + wt[i - 1];
+    }
+    for (int i = 0; i < n; i++)
+    {
+        tt[i] = wt[i] + burst[i];
+    }
+    float totalwt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totalwt += wt[i];
+    }
+    float totaltt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totaltt += tt[i];
+    }
+    cout << "Process id"
+         << "\t"
+         << "Arrival Time"
+         << "\t"
+         << "Burst Time"
+         << "\t"
+         << "Waiting Time"
+         << "\t"
+         << "Tunraround Time" << endl;
+    for (int i = 0; i < n; i++)
+    {
+        cout << process[i] << "\t\t" << arrival[i] << "\t\t" << burst[i] << "\t\t" << wt[i] << "\t\t" << tt[i] << endl;
+    }
+    cout << "Average Waiting time for process is : ";
+    float avgwt = totalwt / n;
+    cout << avgwt;
+    cout << "\n";
+    cout << "Average Turnaround time for process is : ";
+    float avgtt = totaltt / n;
+    cout << avgtt;
+    cout << "\n";
+    return 0;
+}
+
+
+RR CODE:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main()
+{
+    int n, tq;
+    cout << "Enter the number of processes : ";
+    cin >> n;
+    int process[n];
+    int arrival[n];
+    int burst[n];
+    vector<int> ct(n);
+
+    cout << "Enter the arrival time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int x;
+        cin >> x;
+        process[i] = i + 1;
+        arrival[i] = x;
+    }
+
+    cout << "Enter the burst time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int y;
+        cin >> y;
+        burst[i] = y;
+    }
+
+    cout << "Enter the time quantum : ";
+    cin >> tq;
+
+    // sort the process
+    for (int i = 0; i < n; i++)
+    {
+        int pos = i;
+        for (int j = i + 1; j < n; j++)
+        {
+            if (arrival[j] < arrival[pos])
+                pos = j;
+        }
+
+        int temp;
+        temp = arrival[i];
+        arrival[i] = arrival[pos];
+        arrival[pos] = temp;
+
+        int temp1;
+        temp1 = burst[i];
+        burst[i] = burst[pos];
+        burst[pos] = temp1;
+
+        int temp2;
+        temp2 = process[i];
+        process[i] = process[pos];
+        process[pos] = temp2;
+    }
+
+    // Round Robin scheduling
+    int wt[n] = {0};
+    int tt[n] = {0};
+    int inc = 0;
+    int remaining[n];
+    for (int i = 0; i < n; i++)
+        remaining[i] = burst[i];
+
+    while (true)
+    {
+        bool done = true;
+        for (int i = 0; i < n; i++)
+        {
+            if (remaining[i] > 0)
+            {
+                done = false;
+                if (remaining[i] > tq)
+                {
+                    inc += tq;
+                    remaining[i] -= tq;
+                }
+                else
+                {
+                    inc = inc + remaining[i];
+                    remaining[i] = 0;
+                    ct[i] = inc;
+                }
+            }
+        }
+        if (done == true)
+            break;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        // Turnaround time = waiting time + burst time or TAT = CT - AT
+        tt[i] = ct[i] - arrival[i];
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        // waiting time = burst of prev + waiting time of prev  or TAT - BT
+        wt[i] = tt[i] - burst[i];
+    }
+
+    float totalct = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totalct += ct[i];
+    }
+    float totaltt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totaltt += tt[i];
+    }
+    float totalwt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totalwt += wt[i];
+    }
+
+    cout << "Process id\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n";
+    for (int i = 0; i < n; i++)
+    {
+        cout << process[i] << "\t\t" << arrival[i] << "\t\t" << burst[i] << "\t\t" << ct[i] << "\t\t" << tt[i] << "\t\t" << wt[i] << endl;
+    }
+    cout << "Total Completion time for process is : ";
+    cout << totalct;
+    cout << " milliseconds\n";
+    cout << "Average Waiting time for process is : ";
+    float avgwt = totalwt / n;
+    cout << avgwt;
+    cout << "\n";
+    cout << "Average Turnaround time for process is : ";
+    float avgtt = totaltt / n;
+    cout << avgtt;
+    cout << "\n";
+    return 0;
+}
+
+PRIOR CODE:
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int n;
+    cout << "Enter the number of processes : ";
+    cin >> n;
+    int process[n];
+    int priority[n];
+    int burst[n];
+    int arrival[n];
+    cout << "Enter the priority for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int x;
+        cin >> x;
+        process[i] = i + 1;
+        priority[i] = x;
+    }
+    cout << "Enter the arrival time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int y;
+        cin >> y;
+        arrival[i] = y;
+    }
+
+    cout << "Enter the burst time for processes : ";
+    for (int i = 0; i < n; i++)
+    {
+        int y;
+        cin >> y;
+        burst[i] = y;
+    }
+
+    // Sort the processes
+    for (int i = 0; i < n; i++)
+    {
+        int pos = i;
+        for (int j = i + 1; j < n; j++)
+        {
+            if (priority[j] < priority[pos] || (priority[j] == priority[pos] && arrival[j] < arrival[pos]))
+            {
+                pos = j;
+            }
+        }
+
+        // Swap priority
+        int temp = priority[i];
+        priority[i] = priority[pos];
+        priority[pos] = temp;
+
+        // Swap burst
+        temp = burst[i];
+        burst[i] = burst[pos];
+        burst[pos] = temp;
+
+        // Swap process
+        temp = process[i];
+        process[i] = process[pos];
+        process[pos] = temp;
+
+        // Swap arrival
+        temp = arrival[i];
+        arrival[i] = arrival[pos];
+        arrival[pos] = temp;
+    }
+
+    int wt[n];
+    int tt[n];
+    wt[0] = 0;
+    for (int i = 1; i < n; i++)
+    {
+        wt[i] = burst[i - 1] + wt[i - 1];
+    }
+    for (int i = 0; i < n; i++)
+    {
+        tt[i] = wt[i] + burst[i];
+    }
+    float totalwt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totalwt += wt[i];
+    }
+    float totaltt = 0;
+    for (int i = 0; i < n; i++)
+    {
+        totaltt += tt[i];
+    }
+    cout << "Process id"
+         << "\t"
+         << "Arrival Time"
+         << "\t"
+         << "Priority"
+         << "\t"
+         << "Burst Time"
+         << "\t"
+         << "Waiting Time"
+         << "\t"
+         << "Tunraround Time" << endl;
+    for (int i = 0; i < n; i++)
+    {
+        cout << process[i] << "\t\t" << arrival[i] << "\t\t" << priority[i] << "\t\t" << burst[i] << "\t\t" << wt[i] << "\t\t" << tt[i] << endl;
+    }
+    cout << "Average Waiting time for process is : ";
+    float avgwt = totalwt / n;
+    cout << avgwt;
+    cout << "\n";
+    cout << "Average Turnaround time for process is : ";
+    float avgtt = totaltt / n;
+    cout << avgtt;
+    cout << "\n";
+    return 0;
+}
+
+
+
+
+REDIRECTION CODE
+
+Interprocess communication using pipe
+Code
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+int fd1[2], fd2[2], n; // file descriptors for read[0] and write[1]
+char buffer[100]; // no. of characters the child process read
+pipe(fd1); // parent to child
+pipe(fd2); // child to parent
+pid_t p = fork(); // child process creation
+if (p > 0) // to execute parent
+{
+printf("\n---HELLO I AM PARENT");
+close(fd1[0]);
+close(fd2[1]);
+//write
+write(fd1[1], "hello my child\n", 15);
+//read
+n = read(fd2[0], buffer, 100);
+//print
+printf("\n---My Child said to me: ");
+for (int i = 0; i < 15; i++)
+printf("%c", buffer[i]);
+printf("\n");
+}
+else // to execute child
+{
+printf("\n---HELLO I AM CHILD");
+close(fd1[1]);
+close(fd2[0]);
+//read
+n = read(fd1[0], buffer, 100);
+//print
+printf("\n---My Parent said to me: ");
+for (int i = 0; i < 15; i++)
+printf("%c", buffer[i]);
+printf("\n");
+//write
+write(fd2[1], "hello my parent", 15);
+}
+return 0;
+}
+
+
+
+Output
+bhumika-weldode@bhumika-weldode-ThinkPad-X121e:~/Desktop/assi3$ gcc pipe.c &&
+./a.out
+---HELLO I AM CHILD
+---My Parent said to me: hello my child
+---HELLO I AM PARENT
+---My Child said to me: hello my parent
+
+
+
+Redirection using dup2
+
+
+Code
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+int main(void)
+{
+char a[100];
+int input_fd = open("./input.txt", O_RDONLY);
+int output_fd = open("./output.txt", O_WRONLY);
+int input_no = dup2(input_fd, 0);
+int output_no = dup2(output_fd, 1);
+scanf("%100s", a);
+if (input_no == -1 || output_no == -1)
+printf("error-----\n\n");
+else {
+printf("Your name is : %s\n\n", a);
+}
+return 0;
+}
+
+
+Input.txt
+Tejas_Weldode
+Output.txt
+Your name is : Tejas_Weldode
+
+
+
+PTHREADS CODE
+
+#include <semaphore.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+sem_t x, y;
+pthread_t tid;
+pthread_t writerthreads[100], readerthreads[100];
+int readercount = 0;
+void *reader(void *param)
+{
+    sem_wait(&x);
+    readercount++;
+    if (readercount == 1)
+        sem_wait(&y);
+    sem_post(&x);
+    printf("Reader no. %d is inside\n", readercount);
+    usleep(3);
+    sem_wait(&x);
+    readercount--;
+    if (readercount == 0)
+    {
+        sem_post(&y);
+    }
+    sem_post(&x);
+    printf("Reader no. %d is leaving\n", readercount + 1);
+    return NULL;
+}
+void *writer(void *param)
+{
+    printf("Writer is trying to enter\n");
+    sem_wait(&y);
+    printf("Writer ---> has entered\n");
+    sem_post(&y);
+    printf("Writer <--- is leaving\n");
+    return NULL;
+}
+int main()
+{
+    int n2, i;
+    printf("Enter the number of readers:");
+    scanf("%d", &n2);
+    printf("\n");
+    int n1[n2];
+    sem_init(&x, 0, 1);
+    sem_init(&y, 0, 1);
+    for (i = 0; i < n2; i++)
+    {
+        pthread_create(&writerthreads[i], NULL, reader, NULL);
+        pthread_create(&readerthreads[i], NULL, writer, NULL);
+    }
+    for (i = 0; i < n2; i++)
+    {
+        pthread_join(writerthreads[i], NULL);
+        pthread_join(readerthreads[i], NULL);
+    }
+}
+
+
+
+BANKERS.CPP
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+const int MAX_PROCESSES = 10;
+const int MAX_RESOURCES = 10;
+
+int available[MAX_RESOURCES];
+int max_alloc[MAX_PROCESSES][MAX_RESOURCES];
+int current_alloc[MAX_PROCESSES][MAX_RESOURCES];
+int need[MAX_PROCESSES][MAX_RESOURCES];
+bool finish[MAX_PROCESSES];
+
+vector<int> safe_sequence;
+
+bool isSafe(int processes, int resources)
+{
+    // Initialize finish array to false
+    for (int i = 0; i < processes; ++i)
+    {
+        finish[i] = false;
+    }
+
+    // Initialize need matrix
+    for (int i = 0; i < processes; ++i)
+    {
+        for (int j = 0; j < resources; ++j)
+        {
+            need[i][j] = max_alloc[i][j] - current_alloc[i][j];
+        }
+    }
+
+    int work[MAX_RESOURCES];
+    for (int i = 0; i < resources; ++i)
+    {
+        work[i] = available[i];
+    }
+
+    int count = 0;
+    while (count < processes)
+    {
+        bool found = false;
+        for (int i = 0; i < processes; ++i)
+        {
+            if (!finish[i])
+            {
+                bool canBeProcessed = true;
+                for (int j = 0; j < resources; ++j)
+                {
+                    if (need[i][j] > work[j])
+                    {
+                        canBeProcessed = false;
+                        break;
+                    }
+                }
+
+                if (canBeProcessed)
+                {
+                    for (int j = 0; j < resources; ++j)
+                    {
+                        work[j] += current_alloc[i][j];
+                    }
+                    safe_sequence.push_back(i);
+                    finish[i] = true;
+                    ++count;
+                    found = true;
+                }
+            }
+        }
+        if (!found)
+        {
+            return false; // No safe sequence exists
+        }
+    }
+    return true; // Safe sequence found
+}
+
+int main()
+{
+    int processes, resources;
+
+    cout << "Enter the number of processes: ";
+    cin >> processes;
+
+    cout << "Enter the number of resources: ";
+    cin >> resources;
+
+    cout << "Enter the available instances of each resource:\n";
+    for (int i = 0; i < resources; ++i)
+    {
+        cin >> available[i];
+    }
+
+    cout << "Enter the maximum demand of each process:\n";
+    for (int i = 0; i < processes; ++i)
+    {
+        cout << "For process " << i << ": ";
+        for (int j = 0; j < resources; ++j)
+        {
+            cin >> max_alloc[i][j];
+        }
+    }
+
+    cout << "Enter the current allocation of each process:\n";
+    for (int i = 0; i < processes; ++i)
+    {
+        cout << "For process " << i << ": ";
+        for (int j = 0; j < resources; ++j)
+        {
+            cin >> current_alloc[i][j];
+        }
+    }
+
+    if (isSafe(processes, resources))
+    {
+        cout << "System is in a safe state.\n";
+        cout << "Safe sequence is: ";
+        for (int i = 0; i < processes; ++i)
+        {
+            cout << safe_sequence[i] << " ";
+        }
+        cout << endl;
+    }
+    else
+    {
+        cout << "System is in an unsafe state.\n";
+    }
+
+    return 0;
+}
+
+
+
